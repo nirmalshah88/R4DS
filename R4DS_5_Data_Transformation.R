@@ -4,6 +4,8 @@
 
 # [5] DATA TRANSFORMATION
 
+browseURL("http://r4ds.had.co.nz/transform.html")
+
 # [5.1] Prerequisites
 
 library(nycflights13)
@@ -742,28 +744,112 @@ prop_cancelled_vs_avg_delay %>%
 
 # 5. Which carrier has the worst delays? Challenge: can you disentangle the effects of bad airports vs. bad carriers? Why/why not? (Hint: think about flights %>% group_by(carrier, dest) %>% summarise(n()))
 
-# ANSWER:
-flights %>%
-  group_by(carrier, dest) %>%
+# ANSWER: There are clearly a disproportionate number of flights from each carrier. However, using the following code, we get a clearer idea of the proportion between number of flights and average delay for each, grouped by carrier.
+not_cancelled %>%
+  filter(dep_delay > 0, arr_delay > 0) %>% 
+  group_by(carrier) %>%
   summarize(
-    n = n()
-  ) %>% arrange(desc(n))
+    avg_arr_delay = mean(arr_delay, na.rm = TRUE),
+    n = n()) %>% 
+  filter(n > 1000) %>% 
+  arrange(desc(avg_arr_delay, n))
 
-flights %>%
-  group_by(carrier, dest) %>%
+not_cancelled %>%
+  filter(arr_delay > 0) %>%
+  group_by(carrier) %>%
   summarize(
     n = n(),
-    avg_dep_delay = mean(dep_delay, na.rm = TRUE)
-  ) %>% filter(n > 100) %>%
-  arrange(desc(avg_dep_delay)) %>%
-  ggplot(.) + geom_bar(aes(x = as.factor(carrier)))
+    avg_arr_delay = mean(arr_delay, na.rm = TRUE)) %>% 
+  filter(rank(desc(avg_arr_delay)) < 17)
 
 # 6. For each plane, count the number of flights before the first delay of greater than 1 hour.
 
 # ANSWER:
+not_cancelled %>%
+  group_by(tailnum) %>%
+  arrange(year, month, day) %>%
+  filter(!cumany(arr_delay > 60)) %>% 
+  summarize(n = n()) %>% 
+  arrange(desc(n))
+# NOTE: summarize(n = n()) %>% arrange(desc(n)) IS SAME AS tally(sort = TRUE)
 
 # 7. What does the sort argument to count() do. When might you use it?
 
+# ANSWER: The sort argument in count() sorts the elements in descending order by 'n'. This is especially useful for comparing grouped observations.
+not_cancelled %>%
+  group_by(carrier) %>%
+  count()
+not_cancelled %>%
+  group_by(carrier) %>%
+  count(sort = TRUE)
+
+# *****************************************************
+
+# [5.7] Grouped mutates (and filters)
+
+# Grouping is most useful in conjunction with summarize(), but you can also do convenient operations with mutate() and filter():
+
+# i.e. Find the worst members of each group:
+flights_sml %>%
+  group_by(year, month, day) %>%
+  filter(rank(desc(arr_delay)) < 10)
+
+# i.e. Find all groups bigger than a threshold:
+popular_dests <- flights %>%
+  group_by(dest) %>%
+  filter(n() > 365)
+
+# i.e. Standardize to compute per group metrics:
+popular_dests %>% 
+  filter(arr_delay > 0) %>%
+  mutate(prop_delay = arr_delay / sum(arr_delay)) %>% 
+  select(year:day, dest, arr_delay, prop_delay)
+
+# NOTE: A grouped filter is a grouped mutate followed by an ungrouped filter and 
+# NOTE: Functions that work most naturally in grouped mutates and filters are known as window functions (vs. the summary functions used for summaries).
+vignette('window-functions')
+
+# *****************************************************
+
+# EXERCISES
+
+# 1. Refer back to the table of useful mutate and filtering functions. Describe how each operation changes when you combine it with grouping.
+
+# ANSWER: Not sure which table is being referenced in this question. Come back to this later.
+
+# 2. Which plane (tailnum) has the worst on-time record?
+
 # ANSWER:
+flights %>% 
+  filter(arr_delay > 0 & !is.na(arr_delay)) %>%
+  group_by(tailnum) %>% 
+  summarize(
+    avg_arr_delay = mean(arr_delay, na.rm = TRUE),
+    prop_delay = arr_delay / sum(arr_delay),
+    n_flights = n()) %>% 
+  arrange(desc(avg_arr_delay))
 
+# 3. What time of day should you fly if you want to avoid delays as much as possible?
 
+# ANSWER:
+# TODO
+
+# 4. For each destination, compute the total minutes of delay. For each, flight, compute the proportion of the total delay for its destination.
+
+# ANSWER:
+# TODO
+
+# 5. Delays are typically temporally correlated: even once the problem that caused the initial delay has been resolved, later flights are delayed to allow earlier flights to leave. Using lag() explore how the delay of a flight is related to the delay of the immediately preceding flight.
+
+# ANSWER:
+# TODO
+
+# 6. Look at each destination. Can you find flights that are suspiciously fast? (i.e. flights that represent a potential data entry error). Compute the air time a flight relative to the shortest flight to that destination. Which flights were most delayed in the air?
+
+# ANSWER:
+# TODO
+
+# 7. Find all destinations that are flown by at least two carriers. Use that information to rank the carriers.
+
+# ANSWER:
+# TODO
