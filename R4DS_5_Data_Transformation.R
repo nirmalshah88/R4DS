@@ -4,7 +4,7 @@
 
 # [5] DATA TRANSFORMATION
 
-browseURL("http://r4ds.had.co.nz/transform.html")
+browseURL('http://r4ds.had.co.nz/transform.html')
 
 # [5.1] Prerequisites
 
@@ -831,25 +831,45 @@ flights %>%
 
 # 3. What time of day should you fly if you want to avoid delays as much as possible?
 
-# ANSWER:
-# TODO
+# ANSWER: It is evident from the plot below that a majority of the delays occur in morning and late afternoon to evenings, generally between 6 AM to 8 AM as well as 2 PM and 8 PM. This could be due to high demand of morning and evening flights, resulting in high amount of airport traffic, eventually causing delays. Based on this plot, we can say that the best time to fly to avoid delays is at 5 AM or anytime between 10 PM to midnight.
+flights %>%
+  ggplot(aes(x = as.factor(hour), fill = (arr_delay > 0 | is.na(arr_delay)))) +
+    geom_bar() +
+    labs(x = 'Hour of Day', y = 'Count', fill = 'Arrival Delay')
 
 # 4. For each destination, compute the total minutes of delay. For each, flight, compute the proportion of the total delay for its destination.
 
 # ANSWER:
-# TODO
+flights %>%
+  group_by(dest) %>%
+  filter(arr_delay > 0 & !is.na(arr_delay)) %>%
+  summarize(
+    total_arr_delay = sum(arr_delay, na.rm = TRUE),
+    n_flights = n(),
+    prop_arr_delay = total_arr_delay / n_flights
+  ) %>%
+  arrange(desc(prop_arr_delay))
 
 # 5. Delays are typically temporally correlated: even once the problem that caused the initial delay has been resolved, later flights are delayed to allow earlier flights to leave. Using lag() explore how the delay of a flight is related to the delay of the immediately preceding flight.
 
-# ANSWER:
-# TODO
+# ANSWER: TODO
 
 # 6. Look at each destination. Can you find flights that are suspiciously fast? (i.e. flights that represent a potential data entry error). Compute the air time a flight relative to the shortest flight to that destination. Which flights were most delayed in the air?
 
-# ANSWER:
-# TODO
+# ANSWER: TODO
+flights %>% 
+  group_by(dest) %>%
+  filter(air_time < 30) %>%
+  select(tailnum, air_time, origin, dest, dep_time, arr_time, air_time, everything()) %>%
+  arrange(air_time) %>%
+  ggplot() + geom_point(aes(x = factor(dest), y = air_time), position = 'jitter')
 
 # 7. Find all destinations that are flown by at least two carriers. Use that information to rank the carriers.
 
 # ANSWER:
-# TODO
+flights %>%
+  group_by(dest) %>%
+  filter(n_distinct(carrier, na.rm = TRUE) >= 2) %>%
+  group_by(carrier) %>%
+  summarise(connecting_flights = n_distinct(dest)) %>%
+  arrange(desc(connecting_flights))
