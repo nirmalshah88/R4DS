@@ -64,6 +64,7 @@ ggplot(dota = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy))
 fliter(mpg, cyl = 8)
 filter(diamond, carat > 3)
+
 # ANSWER:
 library(tidyverse)
 ggplot(data = mpg) + 
@@ -72,6 +73,5 @@ filter(mpg, cyl == 8)
 filter(diamonds, carat > 3)
 
 # 3. Press Alt + Shift + K. What happens? How can you get to the same place using the menus?
+
 # ANSWER: List of keyboard shortcuts. Can also be found under 'Tools'.
-
-

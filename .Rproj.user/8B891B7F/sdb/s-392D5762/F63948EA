@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "#############################################################################\n# R for Data Science (Garrett Grolemund, Hadley Wickham)\n#############################################################################\n\n# [10] TIBBLES\n\nbrowseURL('http://r4ds.had.co.nz/tibbles.html')\n\n# [10.1] Introduction\n\n# Tibbles are a modern take on data frames\n\n# Tibbles are data frames, but they tweak some older behaviours to make life a little easier. R is an old language, and some things that were useful 10 or 20 years ago now get in your way. It’s difficult to change base R without breaking existing code, so most innovation occurs in packages.\n\nvignette(\"tibble\")\n\n# [10.1.1] Prerequisites\n\nlibrary(tidyverse)\n\n# [10.2] Creating tibbles\n\n# Tibbles are one of the unifying features of the tidyverse. Most other R packages use regular data frames, so you might want to coerce a data frame to a tibble.\nas_tibble(iris)\n\n# You can create a new tibble from individual vectors with tibble():\ntibble(\n  x = 1:100,\n  y = 1,\n  z = x ^ 2 + y\n)\n# NOTE: Unlike using data.frame(), tibble() never changes the type of the inputs (i.e. never converts strings to factors) or the names of variables and never creates row names.\n\n\n# It’s possible for a tibble to have column names that are not valid R variable names, aka non-syntactic names.\n# i.e. These column names might not start with a letter, or might contain unusual characters like a space. To refer to these variables, you need to surround them with backticks, `:\ntb <- tibble(\n  `:)` = \"smile\", \n  ` ` = \"space\",\n  `2000` = \"number\"\n)\ntb\n\n# [10.3] Tibbles vs. data.frame\n\n# 2 main differences between tibbles and data.frames: printing and subsetting\n\n# [10.3.1] Printing\n\n# Tibbles have a refined print method that shows only the first 10 rows, and all the columns that fit on screen. This makes it much easier to work with large data. In addition to its name, each column reports its type, a nice feature borrowed from str():\ntibble(\n  a = lubridate::now() + runif(1e3) * 86400,\n  b = lubridate::today() + runif(1e3) * 30,\n  c = 1:1e3,\n  d = runif(1e3),\n  e = sample(letters, 1e3, replace = TRUE)\n)\n# NOTE: Tibbles are designed so that you don’t accidentally overwhelm your console when you print large data frames.\n\n# But sometimes you need more output than the default display. There are a few options that can help.\n\n# 1. First, you can explicitly print() the data frame and control the number of rows (n) and the width of the display. width = Inf will display all columns:\n# i.e.\nnycflights13::flights %>% \n  print(n = 10, width = Inf)\n\n# 2. You can also control the default print behaviour by setting options:\n# * options(tibble.print_max = n, tibble.print_min = m): if more than m rows, print only n rows. Use options(dplyr.print_min = Inf) to always show all rows.\n# * Use options(tibble.width = Inf) to always print all columns, regardless of the width of the screen.\n\n# 3. A final option is to use RStudio’s built-in data viewer to get a scrollable view of the complete dataset. This is also often useful at the end of a long chain of manipulations.\n# i.e.\nnycflights13::flights %>% \n  View()\n\n# [10.3.2] Subsetting\n\n# If you want to pull out a single variable, you need some new tools, $ and [[. [[ can extract by name or position; $ only extracts by name but is a little less typing.\n# i.e.\ndf <- tibble(\n  x = runif(5),\n  y = rnorm(5)\n)",
+    "created" : 1481765978963.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "285432650",
+    "id" : "F63948EA",
+    "lastKnownWriteTime" : 1481774446,
+    "last_content_update" : 1481774446804,
+    "path" : "~/Documents/R/Scripts/R4DS/R4DS_10_Tibbles.R",
+    "project_path" : "R4DS_10_Tibbles.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
